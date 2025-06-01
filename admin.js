@@ -1,11 +1,24 @@
+// Your Firebase config
+const firebaseConfig = {
+    apiKey: "AIzaSyBwCwoyzuVPrNQ8kt3yPfkpHLfloQTYHmw",
+    authDomain: "globe-gallery-1.firebaseapp.com",
+    projectId: "globe-gallery-1",
+    storageBucket: "globe-gallery-1.firebasestorage.app",
+    messagingSenderId: "20673593446",
+    appId: "1:20673593446:web:0ad86df1c323ffed17eda7",
+    measurementId: "G-9871ZXVCN6"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const storage = firebase.storage();
+const db = firebase.firestore();
+
 const uploadForm = document.getElementById("uploadForm");
 const artworksContainer = document.getElementById("artworksContainer");
 const imagePreview = document.getElementById("imagePreview");
 
-// Load artworks from localStorage
-let artworks = JSON.parse(localStorage.getItem("globeGalleryArtworks")) || [];
-
-// Preview image
+// Preview uploaded image
 uploadForm.imageFile.addEventListener('change', function () {
   const file = this.files[0];
   if (file) {
@@ -19,84 +32,9 @@ uploadForm.imageFile.addEventListener('change', function () {
   }
 });
 
-function saveArtworks() {
-  localStorage.setItem("globeGalleryArtworks", JSON.stringify(artworks));
-}
-
-function renderArtworks() {
-  artworksContainer.innerHTML = "";
-  artworks.forEach((artwork, index) => {
-    const artDiv = document.createElement("div");
-    artDiv.classList.add("artwork-item");
-
-    artDiv.innerHTML = `
-      <img src="${artwork.imageData}" alt="${artwork.title}" />
-      <div class="artwork-details">
-        <strong>${artwork.title}</strong> <br/>
-        <em>${artwork.category}</em> <br/>
-        <p>${artwork.description}</p>
-        ${artwork.inShop 
-          ? `<p><strong>Price:</strong> $${artwork.price.toFixed(2)}</p>` 
-          : `<p><strong>Status:</strong> For Display Only</p>`
-        }
-      </div>
-      <div class="artwork-actions">
-        <button class="edit-btn" onclick="editArtwork(${index})">Edit</button>
-        <button class="delete-btn" onclick="deleteArtwork(${index})">Delete</button>
-      </div>
-    `;
-
-    artworksContainer.appendChild(artDiv);
-  });
-}
-
-
-function deleteArtwork(index) {
-  if (confirm("Are you sure you want to delete this artwork?")) {
-    artworks.splice(index, 1);
-    saveArtworks();
-    renderArtworks();
-  }
-}
-
-function editArtwork(index) {
-  const artwork = artworks[index];
-
-  const newTitle = prompt("Edit Title:", artwork.title);
-  if (newTitle !== null && newTitle.trim() !== "") {
-    artwork.title = newTitle.trim();
-  }
-
-  const newCategory = prompt("Edit Category:", artwork.category);
-  if (newCategory !== null && newCategory.trim() !== "") {
-    artwork.category = newCategory.trim();
-  }
-
-  const newDescription = prompt("Edit Description:", artwork.description);
-  if (newDescription !== null && newDescription.trim() !== "") {
-    artwork.description = newDescription.trim();
-  }
-
-  const newInShop = confirm("Should this artwork be available in the shop?");
-  artwork.inShop = newInShop;
-
-  if (newInShop) {
-    const newPrice = prompt("Edit Price (USD):", artwork.price);
-    const priceNum = parseFloat(newPrice);
-    if (!isNaN(priceNum) && priceNum >= 0) {
-      artwork.price = priceNum;
-    }
-  } else {
-    artwork.price = 0;
-  }
-
-  saveArtworks();
-  renderArtworks();
-}
-
-uploadForm.addEventListener("submit", function (e) {
+// Save new artwork to Firestore + Firebase Storage
+uploadForm.addEventListener("submit", async function (e) {
   e.preventDefault();
-
   const formData = new FormData(uploadForm);
   const file = formData.get("imageFile");
 
@@ -105,32 +43,106 @@ uploadForm.addEventListener("submit", function (e) {
     return;
   }
 
-  const reader = new FileReader();
-  reader.onload = function (e) {
-    const inShop = formData.get("addToShop") === "on";
-    const price = inShop ? parseFloat(formData.get("price")) || 0 : 0;
+  const title = formData.get("title");
+  const category = formData.get("category");
+  const description = formData.get("description");
+  const inShop = formData.get("addToShop") === "on";
+  const price = inShop ? parseFloat(formData.get("price")) || 0 : 0;
 
-    const newArtwork = {
-      title: formData.get("title"),
-      category: formData.get("category"),
-      description: formData.get("description"),
-      price: price,
-      imageData: e.target.result,
-      inShop: inShop,
-    };
+  try {
+    // Upload image to Firebase Storage
+    const storageRef = storage.ref().child(`artworks/${Date.now()}_${file.name}`);
+    await storageRef.put(file);
+    const imageUrl = await storageRef.getDownloadURL();
 
-    artworks.push(newArtwork);
-    saveArtworks();
-    renderArtworks();
+    // Save data to Firestore
+    await db.collection("artworks").add({
+      title,
+      category,
+      description,
+      price,
+      inShop,
+      imageUrl,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    alert("Artwork uploaded successfully!");
     uploadForm.reset();
     imagePreview.innerHTML = "";
     document.getElementById("priceContainer").style.display = "none";
-  };
-
-  reader.readAsDataURL(file);
+    renderArtworks();
+  } catch (error) {
+    console.error("Upload failed:", error);
+    alert("Error uploading artwork.");
+  }
 });
 
-// Handle price visibility toggle
+// Render artworks from Firestore
+async function renderArtworks() {
+  artworksContainer.innerHTML = "";
+  const snapshot = await db.collection("artworks").orderBy("timestamp", "desc").get();
+  snapshot.forEach((doc) => {
+    const artwork = doc.data();
+    const id = doc.id;
+
+    const artDiv = document.createElement("div");
+    artDiv.classList.add("artwork-item");
+
+    artDiv.innerHTML = `
+      <img src="${artwork.imageUrl}" alt="${artwork.title}" />
+      <div class="artwork-details">
+        <strong>${artwork.title}</strong><br/>
+        <em>${artwork.category}</em><br/>
+        <p>${artwork.description}</p>
+        ${artwork.inShop 
+          ? `<p><strong>Price:</strong> $${artwork.price.toFixed(2)}</p>` 
+          : `<p><strong>Status:</strong> For Display Only</p>`
+        }
+      </div>
+      <div class="artwork-actions">
+        <button class="edit-btn" onclick="editArtwork('${id}')">Edit</button>
+        <button class="delete-btn" onclick="deleteArtwork('${id}')">Delete</button>
+      </div>
+    `;
+    artworksContainer.appendChild(artDiv);
+  });
+}
+
+// Edit artwork
+async function editArtwork(id) {
+  const docRef = db.collection("artworks").doc(id);
+  const doc = await docRef.get();
+  if (!doc.exists) return alert("Artwork not found.");
+
+  const artwork = doc.data();
+
+  const newTitle = prompt("Edit Title:", artwork.title);
+  const newCategory = prompt("Edit Category:", artwork.category);
+  const newDescription = prompt("Edit Description:", artwork.description);
+  const newInShop = confirm("Should this artwork be available in the shop?");
+  const newPrice = newInShop ? parseFloat(prompt("Edit Price:", artwork.price) || 0) : 0;
+
+  await docRef.update({
+    title: newTitle,
+    category: newCategory,
+    description: newDescription,
+    inShop: newInShop,
+    price: newPrice
+  });
+
+  alert("Artwork updated.");
+  renderArtworks();
+}
+
+// Delete artwork
+async function deleteArtwork(id) {
+  if (!confirm("Are you sure you want to delete this artwork?")) return;
+  await db.collection("artworks").doc(id).delete();
+  alert("Artwork deleted.");
+  renderArtworks();
+}
+
+// Toggle price input
 document.addEventListener("DOMContentLoaded", () => {
   const checkbox = document.getElementById("addToShopCheckbox");
   const priceInput = document.getElementById("price");
@@ -148,8 +160,6 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   checkbox.addEventListener("change", togglePriceVisibility);
-  togglePriceVisibility(); // set initial state
+  togglePriceVisibility();
+  renderArtworks();
 });
-
-// Initial render
-renderArtworks();
