@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GlobeGallery Shop</title>
+  <!-- <link rel="stylesheet" href="shop-style.css"/> -->
+</head>
+<body>
+    <style>
+
+        body {
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #fefefe;
+  color: #333;
+  margin: 0;
+  padding: 0;
+}
+
+header {
+  background-color: #b15d3f;
+  color: white;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+header .logo {
+  font-weight: bold;
+  font-size: 1.5rem;
+}
+
+header nav a {
+  color: white;
+  text-decoration: none;
+  margin-left: 1rem;
+  font-weight: 600;
+}
+
+main {
+  max-width: 1000px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+h1 {
+  text-align: center;
+  color: #b15d3f;
+  margin-bottom: 2rem;
+}
+
+.shop-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill,minmax(250px,1fr));
+  gap: 1.5rem;
+}
+
+.shop-item {
+  background: #fff;
+  padding: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.shop-item img {
+  max-width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.shop-item h3 {
+  margin: 0.5rem 0;
+  color: #b15d3f;
+}
+
+.shop-item p.description {
+  flex-grow: 1;
+  font-size: 0.9rem;
+  color: #555;
+  margin-bottom: 1rem;
+}
+
+.shop-item .price {
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.shop-item button.buy-btn {
+  background-color: #b15d3f;
+  border: none;
+  color: white;
+  padding: 0.6rem 1rem;
+  border-radius: 25px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.shop-item button.buy-btn:hover {
+  background-color: #944b34;
+}
+
+    </style>
+  <header>
+    <div class="logo">GlobeGallery Shop</div>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="admin.html">Admin</a>
+    </nav>
+  </header>
+
+  <main>
+    <h1>Available Artworks</h1>
+    <div id="shopContainer" class="shop-container">
+      <!-- Artworks available in shop displayed here -->
+    </div>
+  </main>
+
+  <script>
+const savedArtworks = localStorage.getItem("globeGalleryArtworks");
+const artworksData = savedArtworks ? JSON.parse(savedArtworks) : [];
+
+const shopContainer = document.getElementById("shopContainer");
+
+function renderShop() {
+  shopContainer.innerHTML = "";
+
+  const availableArtworks = artworksData.filter(a => a.inShop);
+
+  if (availableArtworks.length === 0) {
+    shopContainer.innerHTML = "<p>No artworks available in the shop at the moment.</p>";
+    return;
+  }
+
+  availableArtworks.forEach(artwork => {
+    const item = document.createElement("div");
+    item.classList.add("shop-item");
+
+    item.innerHTML = `
+      <img src="${artwork.imageData}" alt="${artwork.title}" />
+      <h3>${artwork.title}</h3>
+      <p class="description">${artwork.description}</p>
+      <p><strong>Category:</strong> ${artwork.category}</p>
+      <div class="price">$${artwork.price.toFixed(2)}</div>
+      <button class="buy-btn" onclick="buyArtwork('${artwork.title}')">Buy</button>
+    `;
+
+    shopContainer.appendChild(item);
+  });
+}
+
+function buyArtwork(title) {
+  alert(`Thanks for your interest! Purchase flow for "${title}" coming soon.`);
+}
+
+renderShop();
+
+
+  </script>
+</body>
+</html>

@@ -1,0 +1,128 @@
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #faf7f2;
+  color: #2f3e2f;
+  margin: 0;
+  padding: 0;
+}
+
+header {
+  background-color: #b15d3f;
+  color: white;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+header .logo {
+  font-weight: bold;
+  font-size: 1.6rem;
+}
+
+header nav a {
+  color: white;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+main {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.upload-section, .artworks-list {
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  margin-bottom: 2rem;
+}
+
+.upload-section h2, .artworks-list h2 {
+  margin-bottom: 1rem;
+  color: #b15d3f;
+}
+
+form label {
+  display: block;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+form input[type="text"],
+form input[type="url"],
+form select {
+  width: 100%;
+  padding: 0.5rem;
+  margin-top: 0.3rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+form button {
+  background-color: #b15d3f;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 30px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+form button:hover {
+  background-color: #944b34;
+}
+
+.artwork-item {
+  display: flex;
+  align-items: center;
+  background-color: #fbf5ee;
+  padding: 0.75rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+}
+
+.artwork-item img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 5px;
+  margin-right: 1rem;
+  border: 1px solid #ccc;
+}
+
+.artwork-details {
+  flex-grow: 1;
+}
+
+.artwork-actions button {
+  margin-left: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  border: none;
+  border-radius: 5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.artwork-actions .edit-btn {
+  background-color: #3c5c4d;
+  color: white;
+}
+
+.artwork-actions .edit-btn:hover {
+  background-color: #2f483b;
+}
+
+.artwork-actions .delete-btn {
+  background-color: #b15d3f;
+  color: white;
+}
+
+.artwork-actions .delete-btn:hover {
+  background-color: #944b34;
+}

@@ -1,0 +1,171 @@
+/* Root style to match the GlobeGallery theme */
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #fbf5ee 0%, #f2e9db 100%);
+  color: #3c3c3c;
+  line-height: 1.6;
+}
+
+/* Container for the entire page if needed */
+.container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 30px 20px;
+}
+
+/* Filter section */
+#filters {
+  text-align: center;
+  margin: 30px auto;
+}
+
+#categoryFilter {
+  padding: 10px 16px;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 1px solid #bbb;
+  background-color: #fff;
+  color: #333;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+#categoryFilter:hover {
+  border-color: #666;
+}
+
+
+.back-home-btn {
+  display: inline-block;
+  margin: 20px 40px;
+  padding: 10px 20px;
+  background-color: #eee;
+  color: #333;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+}
+
+.back-home-btn:hover {
+  background-color: #ddd;
+}
+
+
+/* Artwork Grid */
+.artwork-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 25px;
+  padding: 20px;
+  margin: 0 auto;
+  width: 90%;
+}
+
+/* Artwork Card */
+.artwork-card {
+  background-color: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.artwork-card a {
+  color: inherit;
+  text-decoration: none;
+  display: block;
+  height: 100%;
+}
+
+.artwork-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.artwork-card img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.artwork-card .details {
+  padding: 16px;
+}
+
+.artwork-card h3 {
+  font-size: 1.2rem;
+  color: #333;
+  margin: 0 0 8px;
+}
+
+.artwork-card p {
+  font-size: 0.95rem;
+  color: #666;
+  margin: 6px 0;
+}
+
+.artwork-card .price {
+  font-weight: bold;
+  color: #111;
+  margin-top: 10px;
+}
+
+/* Full-view mode */
+.artwork-fullview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.artwork-fullview .image-container {
+  overflow: hidden;
+  max-width: 100%;
+  max-height: 600px;
+  border-radius: 10px;
+}
+
+.artwork-fullview img.zoomable {
+  width: 100%;
+  height: auto;
+  cursor: zoom-in;
+  transition: transform 0.2s ease;
+}
+
+.zoomed {
+  transform: scale(2);
+  cursor: zoom-out;
+}
+
+.artwork-fullview .info {
+  margin-top: 30px;
+  text-align: center;
+}
+
+.artwork-fullview .back-link {
+  display: inline-block;
+  margin-top: 20px;
+  color: #0077cc;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+  .artwork-grid {
+    padding: 10px;
+  }
+
+  .artwork-card img {
+    height: 180px;
+  }
+
+  #categoryFilter {
+    width: 80%;
+  }
+}

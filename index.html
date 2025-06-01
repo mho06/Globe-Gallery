@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GlobeGallery</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" type="image/x-icon" href="favicon.png">
+
+</head>
+<body>
+  <header>
+    <div class="logo">GlobeGallery</div>
+    <nav class="desktop-nav">
+      <a href="#hero">Home</a>
+      <!-- <a href="#categories">Exhibitions</a> -->
+      <a href="/collections.html">Collections</a>
+      <a href="/shop.html">Shop</a>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+      <a href="admin.html" class="admin-link">Admin</a>
+    </nav>
+    <div class="menu-icon" onclick="toggleMenu()">☰</div>
+    <nav class="mobile-nav" id="mobileMenu">
+      <a href="#hero">Home</a>
+      <!-- <a href="#categories">Exhibitions</a> -->
+      <a href="/collections.html">Collections</a>
+      <a href="#shop">Shop</a>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+      <a href="admin.html" class="admin-link">Admin</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero" id="hero">
+      <h1>Explore the World of Art Online</h1>
+      <p>Discover a vast collection of artworks and exhibitions from around the globe.</p>
+      <a class="cta-button" href="#categories">Let's Browse</a>
+    </section>
+
+    <section class="categories" id="categories">
+      <a href="#" aria-label="Currency">Currency</a>
+      <a href="#" aria-label="Books">Books</a>
+      <a href="#" aria-label="Photographs">Photographs</a>
+      <a href="#" aria-label="Art">Art</a>
+    </section>
+
+    
+    <div id="homeArtworks" class="artwork-grid"></div>
+
+
+    <section class="info" id="about">
+      <h2>About GlobeGallery</h2>
+      <p>GlobeGallery is a virtual museum bringing world-class art to your screen. From ancient sculptures to modern masterpieces, we aim to make art accessible for everyone.</p>
+    </section>
+
+    <footer id="contact">
+      <p>Contact us: <a href="mailto:info@globegallery.org">info@globegallery.org</a></p>
+      <p>&copy; 2025 GlobeGallery. All rights reserved.</p>
+    </footer>
+  </main>
+
+<script>
+  function toggleMenu() {
+    const menu = document.getElementById("mobileMenu");
+    if (menu.style.display === "flex") {
+      menu.style.animation = "slideOut 0.3s forwards";
+      setTimeout(() => {
+        menu.style.display = "none";
+        menu.style.animation = "";
+      }, 300);
+    } else {
+      menu.style.display = "flex";
+      menu.style.animation = "slideIn 0.3s forwards";
+    }
+  }
+
+  document.querySelectorAll('.mobile-nav a').forEach(link => {
+    link.addEventListener('click', () => {
+      const menu = document.getElementById("mobileMenu");
+      menu.style.animation = "slideOut 0.3s forwards";
+      setTimeout(() => {
+        menu.style.display = "none";
+        menu.style.animation = "";
+      }, 300);
+    });
+  });
+
+  // Render artworks on home page
+  function renderHomeArtworks() {
+    const homeContainer = document.getElementById("homeArtworks");
+    const savedArtworks = localStorage.getItem("globeGalleryArtworks");
+    const artworks = savedArtworks ? JSON.parse(savedArtworks) : [];
+
+    homeContainer.innerHTML = "";
+
+    if (artworks.length === 0) {
+      homeContainer.innerHTML = "<p>No artworks uploaded yet.</p>";
+      return;
+    }
+
+    artworks.forEach((artwork, index) => {
+      const card = document.createElement("div");
+      card.classList.add("artwork-card");
+
+      const priceDisplay = artwork.inShop
+        ? `<p class="price">$${artwork.price.toFixed(2)}</p>`
+        : `<p class="price"><em>For Display Only</em></p>`;
+
+      card.innerHTML = `
+        <a href="collections.html?id=${index}">
+          <img src="${artwork.imageData}" alt="${artwork.title}" />
+          <div class="details">
+            <h3>${artwork.title}</h3>
+            <p>${artwork.description}</p>
+            <p><strong>Category:</strong> ${artwork.category}</p>
+            ${priceDisplay}
+          </div>
+        </a>
+      `;
+
+      homeContainer.appendChild(card);
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", renderHomeArtworks);
+</script>
+
+</body>
+</html>

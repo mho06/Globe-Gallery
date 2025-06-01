@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GlobeGallery | Collections</title>
+  <link rel="stylesheet" href="collections.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    h1 {
+      text-align: center;
+      margin-top: 40px;
+      color: #333;
+      font-size: 2rem;
+    }
+
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 1.5rem;
+        margin-top: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Explore Our Collections</h1>
+
+  <div id="filters">
+    <label for="categoryFilter">Filter by Category:</label>
+    <select id="categoryFilter">
+      <option value="All">All</option>
+      <option value="Coins">Coins</option>
+      <option value="Banknotes">Banknotes</option>
+      <option value="Arts">Arts</option>
+      <option value="Books">Books</option>
+      <option value="Photographs">Photographs</option>
+      <option value="Paintings">Paintings</option>
+    </select>
+  </div>
+  <a href="index.html" class="back-home-btn">← Back to Home</a>
+
+  <div id="collectionsContainer" class="artwork-grid"></div>
+
+  <script src="collections.js"></script>
+</body>
+</html>
