@@ -5,14 +5,15 @@ function getArtworkIdFromURL() {
 
 // Firebase config (replace with your actual config)
 const firebaseConfig = {
-    apiKey: "AIzaSyBwCwoyzuVPrNQ8kt3yPfkpHLfloQTYHmw",
-    authDomain: "globe-gallery-1.firebaseapp.com",
-    projectId: "globe-gallery-1",
-    storageBucket: "globe-gallery-1.firebasestorage.app",
-    messagingSenderId: "20673593446",
-    appId: "1:20673593446:web:0ad86df1c323ffed17eda7",
-    measurementId: "G-9871ZXVCN6"
+  apiKey: "AIzaSyBwCwoyzuVPrNQ8kt3yPfkpHLfloQTYHmw",
+  authDomain: "globe-gallery-1.firebaseapp.com",
+  projectId: "globe-gallery-1",
+  storageBucket: "globe-gallery-1.appspot.com",
+  messagingSenderId: "20673593446",
+  appId: "1:20673593446:web:0ad86df1c323ffed17eda7",
+  measurementId: "G-9871ZXVCN6"
 };
+
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
