@@ -1,10 +1,13 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.42.3/+esm';
 
-// Supabase config (replace with your actual Supabase URL and anon key)
+// Supabase config
 const SUPABASE_URL = "https://enlujcfoktovgfvxnrqw.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVubHVqY2Zva3RvdmdmdnhucnF3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg4ODY2MDYsImV4cCI6MjA2NDQ2MjYwNn0.esnA0u8NZFk-_v1upWFgz__YEFuxJFxiTZpxA9kSo3s";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// Your full existing logic below...
+
 
 const uploadForm = document.getElementById("uploadForm");
 const artworksContainer = document.getElementById("artworksContainer");
