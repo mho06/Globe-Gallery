@@ -1,19 +1,8 @@
-// Your Firebase config
-const firebaseConfig = {
-  apiKey: "AIzaSyBwCwoyzuVPrNQ8kt3yPfkpHLfloQTYHmw",
-  authDomain: "globe-gallery-1.firebaseapp.com",
-  projectId: "globe-gallery-1",
-  storageBucket: "globe-gallery-1.appspot.com",
-  messagingSenderId: "20673593446",
-  appId: "1:20673593446:web:0ad86df1c323ffed17eda7",
-  measurementId: "G-9871ZXVCN6"
-};
+// Supabase config (replace with your actual Supabase URL and anon key)
+const SUPABASE_URL = "https://enlujcfoktovgfvxnrqw.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVubHVqY2Zva3RvdmdmdnhucnF3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg4ODY2MDYsImV4cCI6MjA2NDQ2MjYwNn0.esnA0u8NZFk-_v1upWFgz__YEFuxJFxiTZpxA9kSo3s";
 
-
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-const storage = firebase.storage();
-const db = firebase.firestore();
+const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const uploadForm = document.getElementById("uploadForm");
 const artworksContainer = document.getElementById("artworksContainer");
@@ -33,7 +22,7 @@ uploadForm.imageFile.addEventListener('change', function () {
   }
 });
 
-// Save new artwork to Firestore + Firebase Storage
+// Save new artwork to Supabase Storage + Database
 uploadForm.addEventListener("submit", async function (e) {
   e.preventDefault();
   const formData = new FormData(uploadForm);
@@ -51,21 +40,33 @@ uploadForm.addEventListener("submit", async function (e) {
   const price = inShop ? parseFloat(formData.get("price")) || 0 : 0;
 
   try {
-    // Upload image to Firebase Storage
-    const storageRef = storage.ref().child(`artworks/${Date.now()}_${file.name}`);
-    await storageRef.put(file);
-    const imageUrl = await storageRef.getDownloadURL();
+    // Upload image to Supabase Storage
+    const fileName = `${Date.now()}_${file.name}`;
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from('artworks')
+      .upload(fileName, file);
 
-    // Save data to Firestore
-    await db.collection("artworks").add({
-      title,
-      category,
-      description,
-      price,
-      inShop,
-      imageUrl,
-      timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    });
+    if (uploadError) throw uploadError;
+
+    // Get public URL of the image
+    const { data: { publicUrl } } = supabase.storage
+      .from('artworks')
+      .getPublicUrl(fileName);
+
+    // Insert data into Supabase table 'artworks'
+    const { error: insertError } = await supabase
+      .from('artworks')
+      .insert([{
+        title,
+        category,
+        description,
+        price,
+        inShop,
+        imageUrl: publicUrl,
+        createdAt: new Date().toISOString()
+      }]);
+
+    if (insertError) throw insertError;
 
     alert("Artwork uploaded successfully!");
     uploadForm.reset();
@@ -78,14 +79,26 @@ uploadForm.addEventListener("submit", async function (e) {
   }
 });
 
-// Render artworks from Firestore
+// Render artworks from Supabase
 async function renderArtworks() {
   artworksContainer.innerHTML = "";
-  const snapshot = await db.collection("artworks").orderBy("timestamp", "desc").get();
-  snapshot.forEach((doc) => {
-    const artwork = doc.data();
-    const id = doc.id;
+  const { data: artworks, error } = await supabase
+    .from('artworks')
+    .select('*')
+    .order('createdAt', { ascending: false });
 
+  if (error) {
+    console.error("Failed to fetch artworks:", error);
+    artworksContainer.innerHTML = "<p>Error loading artworks.</p>";
+    return;
+  }
+
+  if (!artworks.length) {
+    artworksContainer.innerHTML = "<p>No artworks uploaded yet.</p>";
+    return;
+  }
+
+  artworks.forEach(artwork => {
     const artDiv = document.createElement("div");
     artDiv.classList.add("artwork-item");
 
@@ -96,13 +109,13 @@ async function renderArtworks() {
         <em>${artwork.category}</em><br/>
         <p>${artwork.description}</p>
         ${artwork.inShop 
-          ? `<p><strong>Price:</strong> $${artwork.price.toFixed(2)}</p>` 
+          ? `<p><strong>Price:</strong> $${parseFloat(artwork.price).toFixed(2)}</p>` 
           : `<p><strong>Status:</strong> For Display Only</p>`
         }
       </div>
       <div class="artwork-actions">
-        <button class="edit-btn" onclick="editArtwork('${id}')">Edit</button>
-        <button class="delete-btn" onclick="deleteArtwork('${id}')">Delete</button>
+        <button class="edit-btn" onclick="editArtwork('${artwork.id}')">Edit</button>
+        <button class="delete-btn" onclick="deleteArtwork('${artwork.id}')">Delete</button>
       </div>
     `;
     artworksContainer.appendChild(artDiv);
@@ -111,11 +124,13 @@ async function renderArtworks() {
 
 // Edit artwork
 async function editArtwork(id) {
-  const docRef = db.collection("artworks").doc(id);
-  const doc = await docRef.get();
-  if (!doc.exists) return alert("Artwork not found.");
+  const { data: artwork, error } = await supabase
+    .from('artworks')
+    .select('*')
+    .eq('id', id)
+    .single();
 
-  const artwork = doc.data();
+  if (error || !artwork) return alert("Artwork not found.");
 
   const newTitle = prompt("Edit Title:", artwork.title);
   const newCategory = prompt("Edit Category:", artwork.category);
@@ -123,13 +138,21 @@ async function editArtwork(id) {
   const newInShop = confirm("Should this artwork be available in the shop?");
   const newPrice = newInShop ? parseFloat(prompt("Edit Price:", artwork.price) || 0) : 0;
 
-  await docRef.update({
-    title: newTitle,
-    category: newCategory,
-    description: newDescription,
-    inShop: newInShop,
-    price: newPrice
-  });
+  const { error: updateError } = await supabase
+    .from('artworks')
+    .update({
+      title: newTitle,
+      category: newCategory,
+      description: newDescription,
+      inShop: newInShop,
+      price: newPrice
+    })
+    .eq('id', id);
+
+  if (updateError) {
+    alert("Failed to update artwork.");
+    return;
+  }
 
   alert("Artwork updated.");
   renderArtworks();
@@ -138,7 +161,17 @@ async function editArtwork(id) {
 // Delete artwork
 async function deleteArtwork(id) {
   if (!confirm("Are you sure you want to delete this artwork?")) return;
-  await db.collection("artworks").doc(id).delete();
+
+  const { error } = await supabase
+    .from('artworks')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    alert("Failed to delete artwork.");
+    return;
+  }
+
   alert("Artwork deleted.");
   renderArtworks();
 }

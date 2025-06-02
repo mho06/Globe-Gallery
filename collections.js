@@ -1,6 +1,6 @@
 function getArtworkIdFromURL() {
   const params = new URLSearchParams(window.location.search);
-  return params.has("id") ? parseInt(params.get("id")) : null;
+  return params.has("id") ? params.get("id") : null;  // Firestore IDs are strings
 }
 
 // Firebase config (replace with your actual config)
@@ -14,7 +14,6 @@ const firebaseConfig = {
   measurementId: "G-9871ZXVCN6"
 };
 
-
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
@@ -22,7 +21,7 @@ const db = firebase.firestore();
 async function renderCollections() {
   const container = document.getElementById("collectionsContainer");
   const filter = document.getElementById("categoryFilter").value;
-  const selectedId = getArtworkIdFromURL(); // this is now the Firestore doc ID
+  const selectedId = getArtworkIdFromURL(); // Firestore doc ID string
 
   container.innerHTML = "";
 
@@ -112,22 +111,7 @@ async function renderCollections() {
   }
 }
 
-function getArtworkIdFromURL() {
-  const params = new URLSearchParams(window.location.search);
-  return params.get("id");
-}
-
-// On page load
-document.addEventListener("DOMContentLoaded", () => {
-  const categoryFilter = document.getElementById("categoryFilter");
-  if (categoryFilter) {
-    categoryFilter.addEventListener("change", renderCollections);
-  }
-  renderCollections();
-});
-
-
-// Image zoom handler
+// Image zoom toggle
 document.addEventListener("click", function (e) {
   const img = document.querySelector(".zoomable");
   if (img && e.target === img) {
@@ -135,7 +119,11 @@ document.addEventListener("click", function (e) {
   }
 });
 
+// On page load
 document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("categoryFilter").addEventListener("change", renderCollections);
+  const categoryFilter = document.getElementById("categoryFilter");
+  if (categoryFilter) {
+    categoryFilter.addEventListener("change", renderCollections);
+  }
   renderCollections();
 });
