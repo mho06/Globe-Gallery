@@ -3,12 +3,9 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 // Supabase config
 const SUPABASE_URL = "https://enlujcfoktovgfvxnrqw.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVubHVqY2Zva3RvdmdmdnhucnF3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg4ODY2MDYsImV4cCI6MjA2NDQ2MjYwNn0.esnA0u8NZFk-_v1upWFgz__YEFuxJFxiTZpxA9kSo3s";
-
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// Your full existing logic below...
-
-
+// DOM elements
 const uploadForm = document.getElementById("uploadForm");
 const artworksContainer = document.getElementById("artworksContainer");
 const imagePreview = document.getElementById("imagePreview");
@@ -45,8 +42,8 @@ uploadForm.addEventListener("submit", async function (e) {
   const price = inShop ? parseFloat(formData.get("price")) || 0 : 0;
 
   try {
-    // Upload image to Supabase Storage
-    const filePath = `public/${Date.now()}_${file.name}`;
+    // Upload image to Supabase Storage (no "public/" prefix!)
+    const filePath = `${Date.now()}_${file.name}`;
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('artworks')
       .upload(filePath, file);
