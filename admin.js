@@ -1,8 +1,10 @@
+import { createClient } from '@supabase/supabase-js';
+
 // Supabase config (replace with your actual Supabase URL and anon key)
 const SUPABASE_URL = "https://enlujcfoktovgfvxnrqw.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVubHVqY2Zva3RvdmdmdnhucnF3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg4ODY2MDYsImV4cCI6MjA2NDQ2MjYwNn0.esnA0u8NZFk-_v1upWFgz__YEFuxJFxiTZpxA9kSo3s";
 
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const uploadForm = document.getElementById("uploadForm");
 const artworksContainer = document.getElementById("artworksContainer");
@@ -41,17 +43,17 @@ uploadForm.addEventListener("submit", async function (e) {
 
   try {
     // Upload image to Supabase Storage
-    const fileName = `${Date.now()}_${file.name}`;
+    const filePath = `public/${Date.now()}_${file.name}`;
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('artworks')
-      .upload(fileName, file);
+      .upload(filePath, file);
 
     if (uploadError) throw uploadError;
 
     // Get public URL of the image
     const { data: { publicUrl } } = supabase.storage
       .from('artworks')
-      .getPublicUrl(fileName);
+      .getPublicUrl(filePath);
 
     // Insert data into Supabase table 'artworks'
     const { error: insertError } = await supabase
