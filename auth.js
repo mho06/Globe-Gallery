@@ -2,26 +2,9 @@
 // Card Flip
 // -------------------------
 const card = document.getElementById('card');
-
 function flipCard() {
   card.classList.toggle('flipped');
 }
-
-// Add event listeners to flip buttons
-document.querySelectorAll('.switch-to-signup, .switch-to-login').forEach(btn => {
-  btn.addEventListener('click', (e) => {
-    e.preventDefault();
-    flipCard();
-  });
-});
-
-// Accessibility: Flip card with keyboard
-document.getElementById('flip-btn')?.addEventListener('keydown', (e) => {
-  if (e.key === "Enter" || e.key === " ") {
-    e.preventDefault();
-    flipCard();
-  }
-});
 
 // -------------------------
 // Toggle Password Visibility
@@ -143,6 +126,7 @@ function setupTooltip(input, message) {
       opacity: '0',
       transition: 'opacity 0.3s ease',
       bottom: '10px',
+      
     });
     input.parentElement.style.position = 'relative';
     input.parentElement.appendChild(tooltip);
@@ -159,133 +143,34 @@ function setupTooltip(input, message) {
 }
 
 // -------------------------
-// Admin Username Check
+// Init on DOMContentLoaded
 // -------------------------
-function isAdminUsername(username) {
-  return username.toLowerCase().startsWith('@admin');
-}
+document.addEventListener("DOMContentLoaded", () => {
+  const signupPassword = document.getElementById("signup-password");
+  const strengthBar = document.querySelector(".password-strength > div");
+  const feedbackText = document.getElementById("password-feedback");
 
-const admins = [
-  '@adminjohn',
-  '@adminmary',
-  '@adminalice',
-];
-
-// -------------------------
-// Fake API (Replace with Real API)
-// -------------------------
-async function fakeApiLogin(username, password) {
-  if (isAdminUsername(username)) {
-    if (!admins.includes(username.toLowerCase())) {
-      throw new Error("Admin account does not exist.");
+  document.querySelectorAll("input").forEach(input => {
+    if (input.name === 'username') {
+      setupTooltip(input, '3-20 characters: letters, numbers, underscore.');
+    } else if (input.name === 'email') {
+      setupTooltip(input, 'Enter a valid email address.');
+    } else if (input.classList.contains('signup-password')) {
+      setupTooltip(input, 'At least 8 chars with uppercase, lowercase, number & symbol.');
+    } else if (input.name === 'login-password') {
+      setupTooltip(input, 'Enter your password.');
     }
-    if (password.length === 0) {
-      throw new Error("Password is required.");
-    }
-    return { user: { username, role: 'admin' } };
-  }
 
-  if (username.length >= 3 && password.length > 0) {
-    return { user: { username, role: 'user' } };
-  } else {
-    throw new Error("Invalid username or password.");
-  }
-}
+    input.addEventListener("input", () => {
+      validateInput(input);
 
-async function fakeApiSignup(username, email, password) {
-  if (isAdminUsername(username)) {
-    throw new Error("Admin accounts cannot be created by signup.");
-  }
-  if (username.length >= 3 && password.length >= 8) {
-    return { user: { username, email, role: 'user' } };
-  } else {
-    throw new Error("Invalid signup details.");
-  }
-}
+      // Only apply strength logic for signup password
+      if (input === signupPassword) {
+        updateStrengthMeter(signupPassword, strengthBar, feedbackText);
+      }
+    });
 
-// -------------------------
-// Login Handler
-// -------------------------
-document.getElementById('login-form').addEventListener('submit', async (e) => {
-  e.preventDefault();
-
-  const usernameInput = document.getElementById('login-username');
-  const passwordInput = document.getElementById('login-password');
-
-  const username = usernameInput.value.trim();
-  const password = passwordInput.value;
-
-  if (!validateInput(usernameInput) || !validateInput(passwordInput)) {
-    alert("Please enter valid username and password.");
-    return;
-  }
-
-  if (isAdminUsername(username) && !admins.includes(username.toLowerCase())) {
-    alert("Admin account does not exist.");
-    return;
-  }
-
-  try {
-    const result = await fakeApiLogin(username, password);
-    alert(`Welcome ${result.user.role} ${result.user.username}! Login successful.`);
-    window.location.href = "index.html";
-  } catch (err) {
-    alert(err.message);
-  }
+    // Initial check
+    validateInput(input);
+  });
 });
-
-// -------------------------
-// Signup Handler
-// -------------------------
-document.getElementById('signup-form').addEventListener('submit', async (e) => {
-  e.preventDefault();
-
-  const usernameInput = document.getElementById('signup-username');
-  const emailInput = document.getElementById('signup-email');
-  const passwordInput = document.getElementById('signup-password');
-
-  const username = usernameInput.value.trim();
-  const email = emailInput.value.trim();
-  const password = passwordInput.value;
-
-  if (!validateInput(usernameInput) || !validateInput(emailInput) || !validateInput(passwordInput)) {
-    alert("Please fill in valid signup details.");
-    return;
-  }
-
-  if (isAdminUsername(username)) {
-    alert("Admin accounts cannot be created via signup.");
-    return;
-  }
-
-  try {
-    const result = await fakeApiSignup(username, email, password);
-    alert(`Signup successful! Welcome ${result.user.username}. Please login.`);
-    flipCard(); // Flip to login
-    usernameInput.value = "";
-    emailInput.value = "";
-    passwordInput.value = "";
-  } catch (err) {
-    alert(err.message);
-  }
-});
-
-// -------------------------
-// Password Strength Update
-// -------------------------
-const signupPasswordInput = document.getElementById('signup-password');
-const strengthMeter = document.getElementById('password-strength');
-const strengthFeedback = document.getElementById('password-feedback');
-
-signupPasswordInput.addEventListener('input', () => {
-  updateStrengthMeter(signupPasswordInput, strengthMeter, strengthFeedback);
-});
-
-// -------------------------
-// Setup Tooltips
-// -------------------------
-setupTooltip(document.getElementById('signup-username'), "3-20 chars: letters, numbers, underscore.");
-setupTooltip(document.getElementById('signup-email'), "Enter a valid email address.");
-setupTooltip(document.getElementById('signup-password'), "Min 8 chars, mix case, numbers, special chars.");
-setupTooltip(document.getElementById('login-username'), "Enter your username.");
-setupTooltip(document.getElementById('login-password'), "Enter your password.");
