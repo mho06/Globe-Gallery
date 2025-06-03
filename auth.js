@@ -289,39 +289,3 @@ setupTooltip(document.getElementById('signup-email'), "Enter a valid email addre
 setupTooltip(document.getElementById('signup-password'), "Min 8 chars, mix case, numbers, special chars.");
 setupTooltip(document.getElementById('login-username'), "Enter your username.");
 setupTooltip(document.getElementById('login-password'), "Enter your password.");
-
-const passwordInput = document.getElementById("password");
-const strengthText = document.getElementById("password-strength-text");
-const strengthBar = document.getElementById("password-strength-bar");
-
-if (passwordInput) {
-  passwordInput.addEventListener("input", () => {
-    const strength = getPasswordStrength(passwordInput.value);
-    updatePasswordStrengthUI(strength);
-  });
-}
-
-function getPasswordStrength(password) {
-  if (!password) return 0;
-
-  let strength = 0;
-
-  if (password.length >= 6) strength += 1;
-  if (password.match(/[a-z]/) && password.match(/[A-Z]/)) strength += 1;
-  if (password.match(/[0-9]/)) strength += 1;
-  if (password.match(/[^a-zA-Z0-9]/)) strength += 1;
-
-  return strength;
-}
-
-function updatePasswordStrengthUI(strength) {
-  const strengths = ["Very Weak", "Weak", "Medium", "Strong", "Very Strong"];
-  const colors = ["#ccc", "#ff4d4d", "#ffa500", "#00cc66", "#007bff"];
-  const widths = ["20%", "40%", "60%", "80%", "100%"];
-
-  strengthText.innerText = strengths[strength];
-  strengthText.style.color = colors[strength];
-  strengthBar.style.width = widths[strength];
-  strengthBar.style.backgroundColor = colors[strength];
-}
-
