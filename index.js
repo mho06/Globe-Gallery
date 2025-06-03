@@ -16,7 +16,7 @@ checkAuth();
 function requireAuth(event, url) {
   if (!currentUser) {
     event.preventDefault();
-    window.location.href = 'login.html';
+    window.location.href = 'auth.html';
   } else {
     window.location.href = url;
   }

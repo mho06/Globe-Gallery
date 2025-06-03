@@ -1,3 +1,132 @@
+// Add this at the top of auth.js
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = 'https://enlujcfoktovgfvxnrqw.supabase.co';
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVubHVqY2Zva3RvdmdmdnhucnF3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg4ODY2MDYsImV4cCI6MjA2NDQ2MjYwNn0.esnA0u8NZFk-_v1upWFgz__YEFuxJFxiTZpxA9kSo3s';
+
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+// -------------------------
+// Signup Handler
+// -------------------------
+async function signupUser(username, email, password) {
+  if (username.startsWith('@admin')) {
+    alert('Admin accounts cannot be created via signup.');
+    return false;
+  }
+
+  // Signup with Supabase Auth
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+  });
+
+  if (error) {
+    alert('Signup error: ' + error.message);
+    return false;
+  }
+
+  // After signup, insert user record into your "users" table with username and role = 'user'
+  const { error: insertError } = await supabase
+    .from('users')
+    .insert([
+      { id: data.user.id, username, email, role: 'user' }
+    ]);
+
+  if (insertError) {
+    alert('Error saving user data: ' + insertError.message);
+    return false;
+  }
+
+  alert('Signup successful! Please check your email for verification.');
+  return true;
+}
+
+// -------------------------
+// Login Handler
+// -------------------------
+async function loginUser(username, password) {
+  if (username.startsWith('@admin')) {
+    // Admin login flow: check if admin user exists in users table
+    const { data: admins, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('username', username)
+      .eq('role', 'admin')
+      .limit(1);
+
+    if (error) {
+      alert('Error checking admin user: ' + error.message);
+      return false;
+    }
+    if (admins.length === 0) {
+      alert('Admin account does not exist.');
+      return false;
+    }
+
+    // Admin login with Supabase Auth
+    // NOTE: Supabase Auth uses email for login, so you must fetch admin's email from users table
+    const adminEmail = admins[0].email;
+    const { error: loginError } = await supabase.auth.signInWithPassword({
+      email: adminEmail,
+      password,
+    });
+
+    if (loginError) {
+      alert('Login failed: ' + loginError.message);
+      return false;
+    }
+
+    alert('Admin login successful!');
+    return true;
+
+  } else {
+    // Normal user login with Supabase Auth
+    const { error } = await supabase.auth.signInWithPassword({
+      email: username,  // Here username is email for normal users (or you can add lookup)
+      password,
+    });
+
+    if (error) {
+      alert('Login failed: ' + error.message);
+      return false;
+    }
+
+    alert('User login successful!');
+    return true;
+  }
+}
+
+// -------------------------
+// Example usage on form submit
+// -------------------------
+document.getElementById('login-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const username = e.target.elements['login-username'].value.trim();
+  const password = e.target.elements['login-password'].value;
+
+  const success = await loginUser(username, password);
+  if(success) {
+    // redirect or show logged in UI
+  }
+});
+
+document.getElementById('signup-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const username = e.target.elements['signup-username'].value.trim();
+  const email = e.target.elements['signup-email'].value.trim();
+  const password = e.target.elements['signup-password'].value;
+
+  const success = await signupUser(username, email, password);
+  if(success) {
+    // redirect or show signup success message
+  }
+});
+
+
+
 // -------------------------
 // Card Flip
 // -------------------------
@@ -126,7 +255,6 @@ function setupTooltip(input, message) {
       opacity: '0',
       transition: 'opacity 0.3s ease',
       bottom: '10px',
-      
     });
     input.parentElement.style.position = 'relative';
     input.parentElement.appendChild(tooltip);
@@ -143,34 +271,157 @@ function setupTooltip(input, message) {
 }
 
 // -------------------------
-// Init on DOMContentLoaded
+// Signup Username Admin Check - prevent creating @admin users
 // -------------------------
-document.addEventListener("DOMContentLoaded", () => {
-  const signupPassword = document.getElementById("signup-password");
-  const strengthBar = document.querySelector(".password-strength > div");
-  const feedbackText = document.getElementById("password-feedback");
+function isAdminUsername(username) {
+  return username.toLowerCase().startsWith('@admin');
+}
 
-  document.querySelectorAll("input").forEach(input => {
-    if (input.name === 'username') {
-      setupTooltip(input, '3-20 characters: letters, numbers, underscore.');
-    } else if (input.name === 'email') {
-      setupTooltip(input, 'Enter a valid email address.');
-    } else if (input.classList.contains('signup-password')) {
-      setupTooltip(input, 'At least 8 chars with uppercase, lowercase, number & symbol.');
-    } else if (input.name === 'login-password') {
-      setupTooltip(input, 'Enter your password.');
+// -------------------------
+// Mock admin user data (for demo, replace with real backend check)
+// -------------------------
+const admins = [
+  '@adminjohn',
+  '@adminmary',
+  '@adminalice',
+];
+
+// -------------------------
+// Fake API for login/signup (replace with your actual auth API logic)
+// -------------------------
+async function fakeApiLogin(username, password) {
+  // Admin login: username must be in admins list and password must not be empty
+  if (isAdminUsername(username)) {
+    if (!admins.includes(username.toLowerCase())) {
+      throw new Error("Admin account does not exist.");
     }
+    if (password.length === 0) {
+      throw new Error("Password is required.");
+    }
+    // Assume success for demo
+    return { user: { username, role: 'admin' } };
+  }
 
-    input.addEventListener("input", () => {
-      validateInput(input);
+  // User login: username and password non-empty (replace with real check)
+  if (username.length >= 3 && password.length > 0) {
+    return { user: { username, role: 'user' } };
+  } else {
+    throw new Error("Invalid username or password.");
+  }
+}
 
-      // Only apply strength logic for signup password
-      if (input === signupPassword) {
-        updateStrengthMeter(signupPassword, strengthBar, feedbackText);
-      }
-    });
+async function fakeApiSignup(username, email, password) {
+  // Prevent signup if username is admin-type
+  if (isAdminUsername(username)) {
+    throw new Error("Admin accounts cannot be created by signup.");
+  }
+  // Mock success signup
+  if (username.length >= 3 && password.length >= 8) {
+    return { user: { username, email, role: 'user' } };
+  } else {
+    throw new Error("Invalid signup details.");
+  }
+}
 
-    // Initial check
-    validateInput(input);
-  });
+// -------------------------
+// Handle Login Submit
+// -------------------------
+document.getElementById('login-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const usernameInput = document.getElementById('login-username');
+  const passwordInput = document.getElementById('login-password');
+
+  const username = usernameInput.value.trim();
+  const password = passwordInput.value;
+
+  // Basic validation
+  if (!validateInput(usernameInput) || !validateInput(passwordInput)) {
+    alert("Please enter valid username and password.");
+    return;
+  }
+
+  // Admin username check: must start with @admin and exist in admins list
+  if (isAdminUsername(username) && !admins.includes(username.toLowerCase())) {
+    alert("Admin account does not exist.");
+    return;
+  }
+
+  try {
+    const result = await fakeApiLogin(username, password);
+    alert(`Welcome ${result.user.role} ${result.user.username}! Login successful.`);
+    // Redirect or do post-login actions here
+    window.location.href = "index.html"; // example redirect
+  } catch (err) {
+    alert(err.message);
+  }
+});
+
+// -------------------------
+// Handle Signup Submit
+// -------------------------
+document.getElementById('signup-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const usernameInput = document.getElementById('signup-username');
+  const emailInput = document.getElementById('signup-email');
+  const passwordInput = document.getElementById('signup-password');
+
+  const username = usernameInput.value.trim();
+  const email = emailInput.value.trim();
+  const password = passwordInput.value;
+
+  // Basic validation
+  if (!validateInput(usernameInput) || !validateInput(emailInput) || !validateInput(passwordInput)) {
+    alert("Please fill in valid signup details.");
+    return;
+  }
+
+  // Prevent signup if username is admin-type
+  if (isAdminUsername(username)) {
+    alert("Admin accounts cannot be created via signup.");
+    return;
+  }
+
+  try {
+    const result = await fakeApiSignup(username, email, password);
+    alert(`Signup successful! Welcome ${result.user.username}. Please login.`);
+    flipCard(); // flip to login after signup
+    // Optionally reset signup form
+    usernameInput.value = "";
+    emailInput.value = "";
+    passwordInput.value = "";
+  } catch (err) {
+    alert(err.message);
+  }
+});
+
+// -------------------------
+// Password strength update
+// -------------------------
+const signupPasswordInput = document.getElementById('signup-password');
+const strengthMeter = document.getElementById('strength-meter');
+const strengthFeedback = document.getElementById('strength-feedback');
+
+signupPasswordInput.addEventListener('input', () => {
+  updateStrengthMeter(signupPasswordInput, strengthMeter, strengthFeedback);
+});
+
+// -------------------------
+// Setup input tooltips
+// -------------------------
+setupTooltip(document.getElementById('signup-username'), "3-20 chars: letters, numbers, underscore.");
+setupTooltip(document.getElementById('signup-email'), "Enter a valid email address.");
+setupTooltip(document.getElementById('signup-password'), "Min 8 chars, mix case, numbers, special chars.");
+setupTooltip(document.getElementById('login-username'), "Enter your username.");
+setupTooltip(document.getElementById('login-password'), "Enter your password.");
+
+// -------------------------
+// Accessibility: Flip card with keyboard
+// -------------------------
+document.getElementById('flip-btn').addEventListener('keydown', (e) => {
+  if (e.key === "Enter" || e.key === " ") {
+    e.preventDefault();
+    flipCard();
+  }
 });
