@@ -275,7 +275,7 @@ document.getElementById('signup-form').addEventListener('submit', async (e) => {
 // -------------------------
 const signupPasswordInput = document.getElementById('signup-password');
 const strengthMeter = document.getElementById('password-strength');
-const strengthFeedback = document.getElementById('strength-feedback');
+const strengthFeedback = document.getElementById('password-feedback');
 
 signupPasswordInput.addEventListener('input', () => {
   updateStrengthMeter(signupPasswordInput, strengthMeter, strengthFeedback);
