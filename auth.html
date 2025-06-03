@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Modern Login/Signup</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="auth.css" />
+</head>
+<body>
+
+  <div class="flip-container">
+    <div class="card" id="card">
+
+      <!-- Login -->
+      <div class="form-box front">
+        <h2>Login</h2>
+        <div class="form">
+          <div class="input-group">
+            <input class="input" type="text" placeholder=" " required id="login-username" autocomplete="username" />
+            <label for="login-username">Username</label>
+          </div>
+
+          <div class="input-group password-wrapper">
+            <input class="input login-password" type="password" placeholder=" " required id="login-password" autocomplete="current-password" />
+            <label for="login-password">Password</label>
+            <span class="toggle-password login-toggle" role="button" aria-label="Toggle password visibility" tabindex="0">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M2.458 12C3.732 7.943 7.522 5 12 5
+                     c4.478 0 8.268 2.943 9.542 7
+                     -1.274 4.057-5.064 7-9.542 7
+                     -4.478 0-8.268-2.943-9.542-7z"/>
+              </svg>
+            </span>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <label style="display: flex; align-items: center; font-size: 0.85rem; color: #bbb; gap: 0.5rem; cursor: pointer;">
+              <input type="checkbox" id="remember-me" />
+              <span>Remember me</span>
+            </label>
+          </div>
+
+          <div class="extra-links"><a href="#">Forgot your password?</a></div>
+          <button class="btn" type="submit">Login</button>
+          <div class="switch" onclick="flipCard()">Don't have an account? Sign up</div>
+        </div>
+      </div>
+
+      <!-- Sign Up -->
+      <div class="form-box back">
+        <h2>Sign Up</h2>
+        <div class="form">
+          <div class="input-group">
+            <input class="input" type="text" placeholder=" " required id="signup-username" autocomplete="username" />
+            <label for="signup-username">Username</label>
+          </div>
+          <div class="input-group">
+            <input class="input" type="email" placeholder=" " required id="signup-email" autocomplete="email" />
+            <label for="signup-email">Email</label>
+          </div>
+          <div class="input-group password-wrapper">
+            <div class="input-field" style="position: relative;">
+              <input class="input signup-password" type="password" placeholder=" " required id="signup-password" name="signup-password" autocomplete="new-password" />
+              <label for="signup-password">Password</label>
+              <span class="toggle-password signup-toggle" role="button" aria-label="Toggle password visibility" tabindex="0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M2.458 12C3.732 7.943 7.522 5 12 5
+                          c4.478 0 8.268 2.943 9.542 7
+                          -1.274 4.057-5.064 7-9.542 7
+                          -4.478 0-8.268-2.943-9.542-7z"/>
+                </svg>
+              </span>
+            </div>
+
+            <div class="password-strength">
+              <div></div>
+            </div>
+            <div class="password-feedback" id="password-feedback"></div>
+          </div>
+
+
+
+
+        </div>
+        <button class="btn" type="submit">Sign Up</button>
+        <div class="switch" onclick="flipCard()">Already have an account? Log in</div>
+      </div>
+      </div>
+
+  </div>
+</div>
+
+<!-- Terms and Policy (Visible always) -->
+<div class="terms-container">
+  <a href="#">Terms of Use</a> | <a href="#">Privacy Policy</a>
+</div>
+
+<script src="login.js" defer></script>
+
+</body>
+</html>

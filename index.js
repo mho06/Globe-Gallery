@@ -3,6 +3,43 @@
   const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVubHVqY2Zva3RvdmdmdnhucnF3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg4ODY2MDYsImV4cCI6MjA2NDQ2MjYwNn0.esnA0u8NZFk-_v1upWFgz__YEFuxJFxiTZpxA9kSo3s';
   const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
+  // Check if user is logged in
+let currentUser = null;
+async function checkAuth() {
+  const { data: { user } } = await supabase.auth.getUser();
+  currentUser = user;
+}
+checkAuth();
+
+
+// Helper function to handle protected navigation
+function requireAuth(event, url) {
+  if (!currentUser) {
+    event.preventDefault();
+    window.location.href = 'login.html';
+  } else {
+    window.location.href = url;
+  }
+}
+
+// Add auth check to all nav and CTA links
+document.addEventListener("DOMContentLoaded", () => {
+  // Wait for user check
+  checkAuth().then(() => {
+    // Select all anchor tags you want to protect
+    const protectedLinks = document.querySelectorAll('nav a, .cta-button, .categories a');
+
+    protectedLinks.forEach(link => {
+      const href = link.getAttribute('href');
+      link.addEventListener('click', (e) => {
+        // Skip if anchor is "#" (e.g., not yet implemented)
+        if (href === "#" || href.startsWith("#")) return;
+        requireAuth(e, href);
+      });
+    });
+  });
+});
+
   function toggleMenu() {
     const menu = document.getElementById("mobileMenu");
     if (menu.style.display === "flex") {
@@ -65,7 +102,8 @@
       const imageUrl = artwork.image_url || 'placeholder.jpg';
 
       card.innerHTML = `
-        <a href="collections.html?id=${artwork.id}">
+        <a href="#" class="artwork-link" data-id="${artwork.id}">
+
           <img src="${imageUrl}" alt="${artwork.title}" />
           <div class="details">
             <h3>${artwork.title}</h3>
@@ -77,6 +115,16 @@
       `;
 
       homeContainer.appendChild(card);
+      // Protect artwork links
+card.querySelector('.artwork-link').addEventListener('click', (e) => {
+  if (!currentUser) {
+    e.preventDefault();
+    window.location.href = 'login.html';
+  } else {
+    window.location.href = `collections.html?id=${artwork.id}`;
+  }
+});
+
     });
   }
 
