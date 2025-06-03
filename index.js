@@ -37,7 +37,8 @@
     const { data: artworks, error } = await supabase
       .from('artworks')
       .select('*')
-      .order('createdAt', { ascending: false });
+      .order('created_at', { ascending: false });
+
 
     if (error) {
       homeContainer.innerHTML = `<p>Error loading artworks: ${error.message}</p>`;

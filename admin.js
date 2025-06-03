@@ -65,7 +65,7 @@ uploadForm.addEventListener("submit", async function (e) {
         price,
         inShop,
         imageUrl: publicUrl,
-        createdAt: new Date().toISOString()
+        created_at: new Date().toISOString()
       }]);
 
     if (insertError) throw insertError;
@@ -87,7 +87,8 @@ async function renderArtworks() {
   const { data: artworks, error } = await supabase
     .from('artworks')
     .select('*')
-    .order('createdAt', { ascending: false });
+    .order('created_at', { ascending: false });
+
 
   if (error) {
     console.error("Failed to fetch artworks:", error);
