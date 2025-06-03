@@ -273,13 +273,13 @@ document.getElementById('signup-form').addEventListener('submit', async (e) => {
 // -------------------------
 // Password Strength Update
 // -------------------------
-const signupPasswordInput = document.getElementById('signup-password');
-const strengthMeter = document.getElementById('strength-meter');
-const strengthFeedback = document.getElementById('strength-feedback');
+// const signupPasswordInput = document.getElementById('signup-password');
+// const strengthMeter = document.getElementById('strength-meter');
+// const strengthFeedback = document.getElementById('strength-feedback');
 
-signupPasswordInput.addEventListener('input', () => {
-  updateStrengthMeter(signupPasswordInput, strengthMeter, strengthFeedback);
-});
+// signupPasswordInput.addEventListener('input', () => {
+//   updateStrengthMeter(signupPasswordInput, strengthMeter, strengthFeedback);
+// });
 
 // -------------------------
 // Setup Tooltips
